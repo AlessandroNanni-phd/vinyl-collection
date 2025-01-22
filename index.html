@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lista dei Vinili</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script> <!-- Libreria PapaParse -->
+    <script defer src="script.js"></script>
+</head>
+<body>
+    <h1>Lista dei Vinili</h1>
+    <p>Carica il file <strong>.csv</strong> per visualizzare la lista dei tuoi vinili:</p>
+    <input type="file" id="upload" accept=".csv">
+    <table id="vinylTable">
+        <thead>
+            <tr>
+                <th>Autore</th>
+                <th>Titolo</th>
+                <th>Anno</th>
+                <th>Genere</th>
+                <th>Nazionalità</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- I dati dei vinili verranno aggiunti qui dinamicamente -->
+        </tbody>
+    </table>
+</body>
+</html>
