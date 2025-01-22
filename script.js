@@ -1,24 +1,30 @@
-// Aspetta il caricamento della pagina
+// Attendi il caricamento della pagina
 document.addEventListener("DOMContentLoaded", () => {
-    // Prendi il pulsante di caricamento
-    const uploadInput = document.getElementById("upload");
+    // Percorso del file CSV (assicurati che sia nella root del repository)
+    const csvFilePath = 'vinili.csv';
 
-    // Aggiungi un event listener al pulsante
-    uploadInput.addEventListener("change", (event) => {
-        const file = event.target.files[0]; // Ottieni il file selezionato
-
-        if (file) {
-            // Usa PapaParse per leggere il file CSV
-            Papa.parse(file, {
-                header: true, // Leggi la prima riga come intestazioni
+    // Carica il file CSV usando fetch
+    fetch(csvFilePath)
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`Errore nel caricamento del file CSV: ${response.statusText}`);
+            }
+            return response.text(); // Leggi il contenuto del CSV come testo
+        })
+        .then(csvData => {
+            // Usa PapaParse per analizzare i dati del CSV
+            Papa.parse(csvData, {
+                header: true, // Usa la prima riga come intestazioni
                 skipEmptyLines: true, // Ignora righe vuote
-                complete: (results) => {
-                    // Quando la lettura è completata
+                complete: results => {
+                    // Mostra i dati nella tabella
                     displayTable(results.data);
-                },
+                }
             });
-        }
-    });
+        })
+        .catch(error => {
+            console.error("Errore:", error);
+        });
 
     // Funzione per mostrare i dati nella tabella
     function displayTable(data) {
@@ -28,7 +34,7 @@ document.addEventListener("DOMContentLoaded", () => {
         tableBody.innerHTML = "";
 
         // Itera su ogni riga dei dati e crea una nuova riga nella tabella
-        data.forEach((row) => {
+        data.forEach(row => {
             const tr = document.createElement("tr");
 
             // Crea celle della riga
