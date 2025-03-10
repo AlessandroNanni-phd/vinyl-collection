@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tabella con Ordinamento e Filtri</title>
+    <style>
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        table, th, td {
+            border: 1px solid black;
+        }
+        th, td {
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        input, select {
+            margin-bottom: 10px;
+            padding: 5px;
+        }
+    </style>
+</head>
+<body>
+
+    <script>
+        // Password richiesta
+        const password = "Bonvicini7!"; // Modifica con la tua password
+        let attempt = prompt("Inserisci la password per visualizzare la tabella:");
+
+        if (attempt !== password) {
+            alert("Password errata! Accesso negato.");
+            window.location.href = "about:blank"; // Chiude la pagina
+        }
+    </script>
+
+    <h1>Lista Vinili</h1>
+
+    <!-- Filtro per Autore -->
+    <label for="authorFilter">Filtra per Autore:</label>
+    <input type="text" id="authorFilter" oninput="filterTable()">
+    
+    <!-- Filtro per Titolo -->
+    <label for="titleFilter">Filtra per Titolo:</label>
+    <input type="text" id="titleFilter" oninput="filterTable()">
+    
+    <!-- Filtro per Genere -->
+    <label for="genreFilter">Filtra per Genere:</label>
+    <input type="text" id="genreFilter" oninput="filterTable()">
+    
+    <!-- Filtro per Nazionalità -->
+    <label for="nationalityFilter">Filtra per Nazionalità:</label>
+    <input type="text" id="nationalityFilter" oninput="filterTable()">
+    
+    <!-- Filtro per Anno -->
+    <label for="yearFilter">Filtra per Anno:</label>
+    <input type="text" id="yearFilter" oninput="filterTable()">
+
+    <!-- Dropdown per Ordinamento -->
+    <label for="sortSelect">Ordina per:</label>
+    <select id="sortSelect" onchange="sortTable()">
+        <option value="Autore">Autore</option>
+        <option value="Titolo">Titolo</option>
+        <option value="Anno">Anno</option>
+        <option value="Genere">Genere</option>
+        <option value="Nazionalità">Nazionalità</option>
+    </select>
+
+    <!-- Tabella dei dati -->
+    <table id="csvTable">
+        <thead>
+            <tr>
+                <th>Autore</th>
+                <th>Titolo</th>
+                <th>Anno</th>
+                <th>Genere</th>
+                <th>Nazionalità</th>
+            </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+
+    <script>
+        // Dati CSV come stringa
+        const csv = `Autore;Titolo;Anno;Genere;Nazionalità
+ACDC;Back in Black;1980;Hard Rock ;AUS
+Ai!;Manuale Illusione;2023;Sperimentale;ITA
+Alan Parsons Project;I Robot;1977;Progressive Rock;GBR
+Alan Parsons Project;The turn of a friendly card;1980;Progressive Rock;GBR
+Animals;House of the Rising Sun;1964;Blues Rock;GBR
+Baustelle;Elvis;2023;Indie Pop;ITA
+Beak >;DD MM YYYY;2016;Krautrock;GBR
+Beatles;Love songs;1977;Pop Rock;GBR
+Beatles;Sgt. Pepper's Lonely Hearts Club Band;1967;Psychedelic Rock;GBR
+Bob Dylan;Nashville Skyline ;1969;Country Rock;USA
+Bob Marley;Bob Marley;1975;Roots Reggae;JAM
+Booker T and The MGs;Up Tight (Tradimento);1968;Instrumental Soul;USA
+Buffalo Springfield;Buffalo Springfield;1966;Folk Rock;USA
+Byrds;Younger than Yesterday ;1967;Folk Rock;USA
+Camel;Under Age;1976;Progressive Rock;GBR
+Canned Heat;Canned Heat;1967;Blues Rock;USA
+Caribou;Swim;2010;Indie Elettronica;CAN
+Carole King;Tapestry;1971;Cantautorato Pop;USA
+CCCP;1964-1985 Affinità-Divergenze;1986;Punk Rock;ITA
+CCCP;Ortodossia;1984;Punk Rock;ITA
+CCCP;Socialismo e Barbarie;1987;Punk Rock;ITA
+Colosseum;Colosseum;1969;Jazz Rock;GBR
+Cure;Boys don't cry;1980;Post-Punk;GBR
+Cure;Disintegration;1989;Gothic Rock;GBR
+Daft Punk;Random Access Memories;2013;French House;FRA
+Diaframma ;In perfetta solitudine;1990;New wave;ITA
+Diaframma ;Siberia;1984;New wave;ITA
+Donovan;The Hurdy Gurdy Man;1968;Folk Rock;GBR
+Doors;The best of The Doors;1985;Psychedelic Rock;USA
+dOP;Between the Blues;2012;Sperimentale;FRA
+Echo & the Bunnymen;Heaven up here;1981;Post-Punk;GBR
+Eric Burdon & The Animals;Eric Burdon & The Animals;1966;Blues Rock;GBR
+Eurythmics;Be yourself tonight;1985;Synthpop;GBR
+Ezechiel Paihles;OH!;2020;Sperimentale;FRA
+Fabrizio De Andrè;Rimini;1978;Cantautorato Pop;ITA
+Fabrizio De Andrè;Volume 1;1967;Cantautorato Pop;ITA
+Fabrizio De Andrè;Volume 3;1968;Cantautorato Pop;ITA
+Floating Points;Promises;2021;Ambient/Jazz;GBR
+Francesco Bianconi;Accade;2021;Cantautorato Pop;ITA
+Francesco Bianconi;Forever;2020;Cantautorato Pop;ITA
+Francesco De Gregori;Alice Non lo Sa;1973;Cantautorato Pop;ITA
+Francesco Guccini;Stanze di Vita Quotidiana;1974;Cantautorato Pop;ITA
+Franco Battiato;La voce del padrone;1981;Pop sperimentale;ITA
+Franco Battiato;Patriots;1980;Pop sperimentale;ITA
+Franco Battiato;Fisiognomica ;1988;Pop sperimentale;ITA
+Frank Zappa;Chunga's Revenge;1970;Psychedelic Rock;USA
+Frank Zappa;Apostrophe ;1974;Psychedelic Rock;USA
+Franz Ferdinand;Always Ascending ;2018;Pop Rock;GBR
+Io Sono un Cane;DIE;2015;Pop sperimentale;ITA
+Janice Joplin;Greatest Hits;1973;Blues Rock;USA
+Jefferson Airplane;The Best of;1970;Psychedelic Rock;USA
+Jimi Hendrix;Get That Feeling;1967;Psychedelic Rock;USA
+Joy Division;Closer;1980;New wave;GBR
+Joy Division;Love Will Tear Us Apart;1980;New wave;GBR
+Joy Division;Unknown Pleasure;1979;New wave;GBR
+King Crimson;In the court of the Crimson King;1969;Progressive Rock;GBR
+King Crimson;Earthbound;1972;Progressive Rock;GBR
+Kraftwark;Trans Europe Express;1977;Synthpop;GER
+Led Zeppelin;Led Zeppelin IV;1971;Hard Rock ;ENG
+Lucio Battisti;Una giornata Uggiosa;1976;Cantautorato Pop;ITA
+Lucio Battisti;Emozioni;1970;Cantautorato Pop;ITA
+Lucio Battisti;Anima Latina;1974;Psychedelic Rock;ITA
+Lucio Corsi;Cosa Faremo da Grandi;2020;Glam Rock;ITA
+Lucio Dalla;Dalla;1980;Cantautorato Pop;ITA
+Lucio Dalla;Come è profondo il mare;1977;Cantautorato Pop;ITA
+Mac DeMarco;Here comes the cowboy;2019;Indie Pop;CAN
+Mango;Sirtaki;1990;Pop;ITA
+Marracash;E' finita la pace;2024;Hip-hop;ITA
+Massive Attack;Mezzanine;1998;Trip Hop;ENG
+Matia Bazar;Tango;1983;Synthpop;ITA
+Minimono;Runaway;2007;Minimal Techno;GER
+National;Boxer;2007;Indie Rock;USA
+Nirvana;Nevermind;1991;Grunge;USA
+Noir Desir;Des Visages Des Figures;2001;Alternative Rock;FRA
+Paolo Conte;Aguaplano;1987;Cantautorato Pop;ITA
+Pavement;Crooked Rain Crooked Rain;1994;lo-fi rock;USA
+Pink Floyd;Soundtrack from the film More;1969;Psychedelic Rock;GBR
+Pino Daniele; Nero a metà;1980;Cantautorato blues;ITA
+Plastic Ono Band;Live Peace in Toronto;1969;Indie Rock;GBR
+Radiohead;In Rainbow;2007;Alternative Rock;GBR
+Radiohead;A Moon Shaped Pool;2016;Alternative Rock;GBR
+Rino Gaetano ;Aida;1977;Cantautorato Pop;ITA
+Slowdive;Slowdive;2017;Shoegaze;GBR
+Smiths;The Queen is Dead;1986;Indie Rock;GBR
+Talking Heads;Remain in light;1980;New wave;USA
+Vasco Brondi;Un Segno di Vita;2024;Cantautorato Pop;ITA
+Way Out West;Intensify;2001;Trance/Trip hop;GBR
+Xx;Xx;2009;Dance/Pop Elettronica;GBR`;
+
+        // Funzione per caricare i dati nella tabella
+        const rows = csv.split('\n');
+        const table = document.getElementById('csvTable');
+        const tbody = table.querySelector('tbody');
+
+        rows.forEach((row, index) => {
+            const columns = row.split(';');
+            if (columns.length < 5 || index === 0) return; // Ignora la riga con intestazione (index === 0)
+
+            const tr = document.createElement('tr');
+
+            columns.forEach(column => {
+                const td = document.createElement('td');
+                td.textContent = column.trim();
+                tr.appendChild(td);
+            });
+
+            tbody.appendChild(tr);
+        });
+
+        // Funzione per filtrare i dati
+        function filterTable() {
+            const authorFilter = document.getElementById('authorFilter').value.toLowerCase();
+            const titleFilter = document.getElementById('titleFilter').value.toLowerCase();
+            const genreFilter = document.getElementById('genreFilter').value.toLowerCase();
+            const nationalityFilter = document.getElementById('nationalityFilter').value.toLowerCase();
+            const yearFilter = document.getElementById('yearFilter').value.toLowerCase();
+            const rows = tbody.getElementsByTagName('tr');
+            
+            for (let i = 0; i < rows.length; i++) {
+                const cells = rows[i].getElementsByTagName('td');
+                const author = cells[0].textContent.toLowerCase();
+                const title = cells[1].textContent.toLowerCase();
+                const genre = cells[3].textContent.toLowerCase();
+                const nationality = cells[4].textContent.toLowerCase();
+                const year = cells[2].textContent.toLowerCase();
+
+                if (author.includes(authorFilter) && 
+                    title.includes(titleFilter) && 
+                    genre.includes(genreFilter) && 
+                    nationality.includes(nationalityFilter) && 
+                    year.includes(yearFilter)) {
+                    rows[i].style.display = '';
+                } else {
+                    rows[i].style.display = 'none';
+                }
+            }
+        }
+
+        // Funzione per ordinare la tabella
+        function sortTable() {
+            const sortBy = document.getElementById('sortSelect').value;
+            const rows = Array.from(tbody.getElementsByTagName('tr'));
+
+            const sortedRows = rows.sort((rowA, rowB) => {
+                const cellsA = rowA.getElementsByTagName('td');
+                const cellsB = rowB.getElementsByTagName('td');
+                
+                let valueA, valueB;
+
+                if (sortBy === 'Autore') {
+                    valueA = cellsA[0].textContent;
+                    valueB = cellsB[0].textContent;
+                } else if (sortBy === 'Titolo') {
+                    valueA = cellsA[1].textContent;
+                    valueB = cellsB[1].textContent;
+                } else if (sortBy === 'Anno') {
+                    valueA = parseInt(cellsA[2].textContent);
+                    valueB = parseInt(cellsB[2].textContent);
+                } else if (sortBy === 'Genere') {
+                    valueA = cellsA[3].textContent;
+                    valueB = cellsB[3].textContent;
+                } else if (sortBy === 'Nazionalità') {
+                    valueA = cellsA[4].textContent;
+                    valueB = cellsB[4].textContent;
+                }
+
+                return valueA > valueB ? 1 : (valueA < valueB ? -1 : 0);
+            });
+
+            // Riordina le righe nel tbody
+            sortedRows.forEach(row => tbody.appendChild(row));
+        }
+    </script>
+</body>
+</html>
